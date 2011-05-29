@@ -9,7 +9,7 @@
 
 ofxStoredBlobVO::ofxStoredBlobVO(ofxCvBlob newBlob)
 {
-	// we will do a quick "shallow" copy 
+	// a quick "shallow" copy 
 	area = newBlob.area;
 	length = newBlob.length;
 	boundingRect = newBlob.boundingRect;
@@ -20,4 +20,16 @@ ofxStoredBlobVO::ofxStoredBlobVO(ofxCvBlob newBlob)
 	
 	id = -1;
 	lastDetectedTime = 0;
+}
+
+void ofxStoredBlobVO::update(ofxCvBlob newBlob)
+{
+	// a quick "shallow" update 
+	area = newBlob.area;
+	length = newBlob.length;
+	boundingRect = newBlob.boundingRect;
+	centroid = newBlob.centroid;
+	hole = newBlob.hole;
+	pts = newBlob.pts;
+	nPts = newBlob.nPts;
 }

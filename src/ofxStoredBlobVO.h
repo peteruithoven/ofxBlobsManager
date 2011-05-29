@@ -19,6 +19,7 @@ public:
 	int dis; //used to sort on distance and to find the closest blob to merge with
 
 	ofxStoredBlobVO(ofxCvBlob newBlob);
+	void update(ofxCvBlob newBlob);
 };
 
 #endif

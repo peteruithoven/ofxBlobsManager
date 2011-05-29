@@ -28,9 +28,6 @@ void testApp::setup()
 	displayWidth = 400;
 	displayHeight = 300;
 	
-	blobsManager.maxBlobs = 10;
-	blobsManager.maxMergeDis = 100; //1000;
-	blobsManager.maxUndetectedTime = 1000;
 	blobsManager.normalizePercentage = 0.7;
 		
 	ofAddListener(ofEvents.exit, this, &testApp::exit);

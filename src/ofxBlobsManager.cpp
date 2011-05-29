@@ -9,8 +9,8 @@
 
 ofxBlobsManager::ofxBlobsManager()
 {
-	maxMergeDis = 50; 
-	maxUndetectedTime = 2000;
+	maxMergeDis = 100; 
+	maxUndetectedTime = 1000;
 	minDetectedTime = 1000;
 	sequentialID = 0;
 	giveLowestPossibleIDs = true;
@@ -42,13 +42,12 @@ void ofxBlobsManager::update(vector<ofxCvBlob> newBlobs)
 			// update stored blob
 			ofxStoredBlobVO* closestBlob = closeBlobs.at(0);
 			cout << "      found matching stored blob: " << closestBlob->id << endl;
+			closestBlob->update(newBlob);
 			if(normalizePercentage < 1)
 			{
-				newBlob.centroid.x = closestBlob->centroid.x*(1-normalizePercentage) + newBlob.centroid.x*normalizePercentage;
-				newBlob.centroid.y = closestBlob->centroid.y*(1-normalizePercentage) + newBlob.centroid.y*normalizePercentage;
+				closestBlob->centroid.x = closestBlob->centroid.x*(1-normalizePercentage) + newBlob.centroid.x*normalizePercentage;
+				closestBlob->centroid.y = closestBlob->centroid.y*(1-normalizePercentage) + newBlob.centroid.y*normalizePercentage;
 			}
-			closestBlob->centroid.x = newBlob.centroid.x;
-			closestBlob->centroid.y = newBlob.centroid.y;
 			closestBlob->lastDetectedTime = currentTime;
 		}
 		else
@@ -61,8 +60,7 @@ void ofxBlobsManager::update(vector<ofxCvBlob> newBlobs)
 				// update candidate
 				ofxStoredBlobVO* closestCandidateBlob = closeCandidateBlobs.at(0);
 				cout << "      found matching candidate blob: " << closestCandidateBlob->id << endl;
-				closestCandidateBlob->centroid.x = newBlob.centroid.x;
-				closestCandidateBlob->centroid.y = newBlob.centroid.y;				
+				closestCandidateBlob->update(newBlob);
 				closestCandidateBlob->lastDetectedTime = currentTime;
 			}
 			else
