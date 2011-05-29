@@ -1,0 +1,26 @@
+<install>
+    <version>1.0</version>
+    <author>Peter Uithoven</author>
+    <author_website>www.peteruithoven.nl</author_website>
+    <code_url>https://github.com/peteruithoven/ofxBlobsManager/</code_url>
+    <site_url>https://github.com/peteruithoven/ofxBlobsManager/blob/master/README</site_url>
+    <download_url>https://github.com/peteruithoven/ofxBlobsManager/zipball/master</download_url>
+    <forum_url>http://forum.openframeworks.cc/index.php/topic,6339.0.html</forum_url>
+    <supported_os>
+    		<win>y</win>
+    		<mac>y</mac>
+    		<linux>y</linux>
+    	</supported_os>
+    <has_example>y</has_example>
+    	<description><![CDATA[
+            A manager for openCV blobs. By remembering blobs and comparing them it will identify blobs, even though they are moving. It's basicly a lot of things you need to do when working with blobs.   
+    ]]></description>
+    <add>
+		<include> 
+			<path/>
+		</include>
+		<link>
+			<lib os="win_cb|xcode" compiler="mingw"/>
+		</link>
+	</add>
+</install>
