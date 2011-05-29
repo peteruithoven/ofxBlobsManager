@@ -10,12 +10,18 @@
 ofxBlobsManager::ofxBlobsManager()
 {
 	maxMergeDis = 100; 
-	maxUndetectedTime = 1000;
+	normalizePercentage = 1;	
+	
+	enableMinDetectedTimeFilter = true;
 	minDetectedTime = 1000;
+	
+	enableUndetectedBlobs = true;
+	maxUndetectedTime = 1000;
+	
+	giveLowestPossibleIDs = false;
+	maxNumBlobs = 9999;
+
 	sequentialID = 0;
-	giveLowestPossibleIDs = true;
-	maxBlobs = 9999;
-	normalizePercentage = 1;
 }
 bool sortBlobsOnDis(ofxStoredBlobVO * blob1, ofxStoredBlobVO * blob2)
 {
@@ -23,12 +29,12 @@ bool sortBlobsOnDis(ofxStoredBlobVO * blob1, ofxStoredBlobVO * blob2)
 }
 void ofxBlobsManager::update(vector<ofxCvBlob> newBlobs)
 {
-	cout << "BlobsManager::update" << endl;
+	//cout << "BlobsManager::update" << endl;
 	int numNewBlobs = newBlobs.size();
 	
 	int currentTime = ofGetElapsedTimeMillis();
 	
-	cout << "  loop new blobs (" << numNewBlobs << ")" << endl;
+	//cout << "  loop new blobs (" << numNewBlobs << ")" << endl;
 	for( int i = 0; i < numNewBlobs; i++ ) 
 	{
 		ofxCvBlob newBlob = newBlobs.at(i);
@@ -41,7 +47,7 @@ void ofxBlobsManager::update(vector<ofxCvBlob> newBlobs)
 		{
 			// update stored blob
 			ofxStoredBlobVO* closestBlob = closeBlobs.at(0);
-			cout << "      found matching stored blob: " << closestBlob->id << endl;
+			//cout << "      found matching stored blob: " << closestBlob->id << endl;
 			closestBlob->update(newBlob);
 			if(normalizePercentage < 1)
 			{
@@ -52,67 +58,94 @@ void ofxBlobsManager::update(vector<ofxCvBlob> newBlobs)
 		}
 		else
 		{
-			// find new blob in candidates
-			vector<ofxStoredBlobVO*> closeCandidateBlobs = findCloseBlobs(&newBlob,&candidateBlobs);
-			bool foundInCandidateBlobs = closeCandidateBlobs.size() > 0;
-			if(foundInCandidateBlobs)
+			if(enableMinDetectedTimeFilter)
 			{
-				// update candidate
-				ofxStoredBlobVO* closestCandidateBlob = closeCandidateBlobs.at(0);
-				cout << "      found matching candidate blob: " << closestCandidateBlob->id << endl;
-				closestCandidateBlob->update(newBlob);
-				closestCandidateBlob->lastDetectedTime = currentTime;
+				// find new blob in candidates
+				vector<ofxStoredBlobVO*> closeCandidateBlobs = findCloseBlobs(&newBlob,&candidateBlobs);
+				bool foundInCandidateBlobs = closeCandidateBlobs.size() > 0;
+				if(foundInCandidateBlobs)
+				{
+					// update candidate
+					ofxStoredBlobVO* closestCandidateBlob = closeCandidateBlobs.at(0);
+					//cout << "      found matching candidate blob: " << closestCandidateBlob->id << endl;
+					closestCandidateBlob->update(newBlob);
+					closestCandidateBlob->lastDetectedTime = currentTime;
+				}
+				else
+				{
+					// store the new candidate blob
+					// we make a ofxStoredBlobVO out of the ofxCvBlob so we can store a id for example
+					ofxStoredBlobVO * newCandidateBlob = new ofxStoredBlobVO(newBlob);
+					//if(giveSequentialID)
+						//newCandidateBlob->id = sequentialID;
+					newCandidateBlob->iniDetectedTime = currentTime;
+					newCandidateBlob->lastDetectedTime = currentTime;
+					candidateBlobs.push_back(newCandidateBlob);
+					//cout << "    new blob candidate: " << newCandidateBlob << endl;
+					//cout << "        x: " << newCandidateBlob->centroid.x << ", y: " << newCandidateBlob->centroid.y << endl;
+				}
 			}
-			else
+			else 
 			{
-				// store the new candidate blob
+				// store the new blob
 				// we make a ofxStoredBlobVO out of the ofxCvBlob so we can store a id for example
-				ofxStoredBlobVO * newCandidateBlob = new ofxStoredBlobVO(newBlob);
-				//if(giveSequentialID)
-					//newCandidateBlob->id = sequentialID;
-				newCandidateBlob->iniDetectedTime = currentTime;
-				newCandidateBlob->lastDetectedTime = currentTime;
-				candidateBlobs.push_back(newCandidateBlob);
-				cout << "    new blob candidate: " << newCandidateBlob << endl;
-				cout << "        x: " << newCandidateBlob->centroid.x << ", y: " << newCandidateBlob->centroid.y << endl;
+				ofxStoredBlobVO * newStoredBlob = new ofxStoredBlobVO(newBlob);
+				if(!giveLowestPossibleIDs)
+				{
+					newStoredBlob->id = sequentialID;
+					sequentialID++;	
+				}
+				newStoredBlob->iniDetectedTime = currentTime;
+				newStoredBlob->lastDetectedTime = currentTime;
+				blobs.push_back(newStoredBlob);
+				//cout << "    new blob: " << newStoredBlob << endl;
+				//cout << "        x: " << newStoredBlob->centroid.x << ", y: " << newStoredBlob->centroid.y << endl;
 			}
+
 		}
 		
 	}
 	
-	cout << "  loop candidate blobs (" << candidateBlobs.size() << ") (check undetected and detected time)" << endl; 
-	for( int i = 0; i < candidateBlobs.size(); i++ ) 
+	if(enableMinDetectedTimeFilter)
 	{
-		ofxStoredBlobVO * candidateBlob = candidateBlobs.at(i);
-		int undetectedTime = currentTime-candidateBlob->lastDetectedTime;
-		int detectionTime = candidateBlob->lastDetectedTime-candidateBlob->iniDetectedTime;
-		cout << "    candidateBlob: " << candidateBlob << " detectionTime: " << detectionTime << " undetectedTime: " << undetectedTime << endl; 
-		if(undetectedTime > maxUndetectedTime)
+		//cout << "  loop candidate blobs (" << candidateBlobs.size() << ") (check undetected and detected time)" << endl; 
+		for( int i = 0; i < candidateBlobs.size(); i++ ) 
 		{
-			cout << "      to long undetected" << endl;
-			removeBlob(candidateBlob,&candidateBlobs,true);
-			i--;
-		}
-		else if(detectionTime > minDetectedTime)
-		{
-			cout << "      long enough detected, move to blobs" << endl;
-			removeBlob(candidateBlob,&candidateBlobs,false);
-			blobs.push_back(candidateBlob);
-			i--;
-			if(!giveLowestPossibleIDs)
+			ofxStoredBlobVO * candidateBlob = candidateBlobs.at(i);
+			int undetectedTime = currentTime-candidateBlob->lastDetectedTime;
+			int detectionTime = candidateBlob->lastDetectedTime-candidateBlob->iniDetectedTime;
+			//cout << "    candidateBlob: " << candidateBlob << " detectionTime: " << detectionTime << " undetectedTime: " << undetectedTime << endl; 
+			int maxUndetectedTime = (enableUndetectedBlobs)? this->maxUndetectedTime : 0;
+			if(undetectedTime > maxUndetectedTime)
 			{
-				candidateBlob->id = sequentialID;
-				sequentialID++;	
+				//cout << "      to long undetected" << endl;
+				removeBlob(candidateBlob,&candidateBlobs,true);
+				i--;
+			}
+			else if(detectionTime > minDetectedTime)
+			{
+				//cout << "      long enough detected, move to blobs" << endl;
+				removeBlob(candidateBlob,&candidateBlobs,false);
+				blobs.push_back(candidateBlob);
+				i--;
+				if(!giveLowestPossibleIDs)
+				{
+					candidateBlob->id = sequentialID;
+					sequentialID++;	
+				}
 			}
 		}
 	}
 	
-	cout << "  loop stored blobs (" << blobs.size() << ") (check time since last detection)" << endl; 
+	//cout << "  loop stored blobs (" << blobs.size() << ") (check time since last detection)" << endl; 
 	for( int i = 0; i < blobs.size(); i++ ) 
 	{
 		ofxStoredBlobVO * blob = blobs.at(i);
 		int undetectedTime = currentTime-blob->lastDetectedTime;
-		cout << "    blob: " << blob->id << " undetectedTime: " << undetectedTime << endl; 
+		//cout << "    blob: " << blob->id << " undetectedTime: " << undetectedTime << endl; 
+		int maxUndetectedTime = (enableUndetectedBlobs)? this->maxUndetectedTime : 0;
+		//cout << "    this->maxUndetectedTime: " << this->maxUndetectedTime << endl;
+		//cout << "    local maxUndetectedTime: " << maxUndetectedTime << endl;
 		if(undetectedTime > maxUndetectedTime)
 		{
 			removeBlob(blob,&blobs,true);
@@ -120,10 +153,10 @@ void ofxBlobsManager::update(vector<ofxCvBlob> newBlobs)
 		}
 	}
 	
-	// find name
+	// give lowest possible id's 
 	if(giveLowestPossibleIDs)
 	{
-		cout << "  loop stored blobs (" << blobs.size() << ") (find lowest id)" << endl; 
+		//cout << "  loop stored blobs (" << blobs.size() << ") (find lowest id)" << endl; 
 		for( int i = 0; i < blobs.size(); i++ ) 
 		{
 			ofxStoredBlobVO * blob = blobs.at(i);
@@ -135,7 +168,7 @@ void ofxBlobsManager::update(vector<ofxCvBlob> newBlobs)
 					lowestID++;
 				}
 				blob->id = lowestID;
-				cout << "    lowestID: " << lowestID << endl;
+				//cout << "    lowestID: " << lowestID << endl;
 				if(blob->id > maxBlobs)
 				{
 					removeBlob(blob,&blobs,true);
@@ -145,27 +178,27 @@ void ofxBlobsManager::update(vector<ofxCvBlob> newBlobs)
 		}
 	}
 	
-	cout << "  loop resulting stored blobs (" << blobs.size() << ")" << endl; 
+	//cout << "  loop resulting stored blobs (" << blobs.size() << ")" << endl; 
 	for( int i = 0; i < blobs.size(); i++ ) 
 	{
 		ofxStoredBlobVO * blob = blobs.at(i);
-		cout << "    blob: " << blob->id << " x: " << blob->centroid.x << " y: " << blob->centroid.y << endl;	
+		//cout << "    blob: " << blob->id << " x: " << blob->centroid.x << " y: " << blob->centroid.y << endl;	
 	}
 }
 
 vector<ofxStoredBlobVO*> ofxBlobsManager::findCloseBlobs(ofxCvBlob * newBlob,vector<ofxStoredBlobVO*> * blobs)
 {
-	cout << "ofxBlobsManager::findCloseBlobs" << endl;
+	//cout << "ofxBlobsManager::findCloseBlobs" << endl;
 	// find closest blobs, to see if it is the same blob as a stored blob.
 	int numBlobs = blobs->size();
-	cout << "  loop stored (candidate) blobs (" << numBlobs << ")" << endl;
+	//cout << "  loop stored (candidate) blobs (" << numBlobs << ")" << endl;
 	vector<ofxStoredBlobVO*> closeBlobs;
 	for( int j = 0; j < numBlobs; j++ ) 
 	{
 		ofxStoredBlobVO * blob = blobs->at(j);
 		blob->dis = blob->centroid.distance(newBlob->centroid);
 		
-		cout << "      " << blob->id << ": dis: " << blob->dis << endl;
+		//cout << "      " << blob->id << ": dis: " << blob->dis << endl;
 		if(blob->dis < maxMergeDis)
 			closeBlobs.push_back(blob);
 	}
@@ -187,7 +220,7 @@ bool ofxBlobsManager::hasBlob(int blobID)
 }
 void ofxBlobsManager::removeBlob(ofxStoredBlobVO * targetBlob, vector<ofxStoredBlobVO*> * blobs, bool deleteBlob)
 {
-	cout <<  "BlobsManager::removeBlob blob: " << targetBlob << " id: " << targetBlob->id << " delete: " << deleteBlob << endl;
+	//cout <<  "BlobsManager::removeBlob blob: " << targetBlob << " id: " << targetBlob->id << " delete: " << deleteBlob << endl;
 	vector <ofxStoredBlobVO*>::iterator itr;
 	for (itr = blobs->begin(); itr != blobs->end(); ++itr) {
 		ofxStoredBlobVO * blob = *itr;
