@@ -1,0 +1,7 @@
+
+
+BlobsManager
+==================
+A manager for openCV blobs. By remembering blobs and comparing them 
+it will identify blobs, even though they are moving. 
+It's basicly a lot of things you need to do when working with blobs. 
