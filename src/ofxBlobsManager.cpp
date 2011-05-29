@@ -169,7 +169,7 @@ void ofxBlobsManager::update(vector<ofxCvBlob> newBlobs)
 				}
 				blob->id = lowestID;
 				//cout << "    lowestID: " << lowestID << endl;
-				if(blob->id > maxBlobs)
+				if(blob->id > maxNumBlobs)
 				{
 					removeBlob(blob,&blobs,true);
 					i--;

@@ -1,5 +1,5 @@
 /*
- *  BlobVO.h
+ *  ofxStoredBlobVO.h
  *
  *  Created by Peter Uithoven on 5/6/11.
  */

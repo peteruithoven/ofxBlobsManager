@@ -1,5 +1,5 @@
 /*
- *  BlobVO.cpp
+ *  ofxStoredBlobVO.cpp
  *
  *  Created by Peter Uithoven on 5/6/11.
  */
