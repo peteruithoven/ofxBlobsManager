@@ -13,7 +13,7 @@ ofxBlobsManager::ofxBlobsManager()
 	maxUndetectedTime = 5000;
 	sequentialID = 0;
 	giveSequentialID = false;
-	maxBlobs = 10;
+	maxBlobs = 9999;
 	normalizePercentage = 1;
 }
 bool sortBlobsOnDis(ofxStoredBlobVO * blob1, ofxStoredBlobVO * blob2)

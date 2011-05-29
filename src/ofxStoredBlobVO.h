@@ -12,12 +12,13 @@
 
 class ofxStoredBlobVO : public ofxCvBlob
 {
-	public:
-		int id;
-		int lastDetectedTime; 
-		int dis; //used to sort on distance and to find the closest blob to merge with
-	
-		ofxStoredBlobVO(ofxCvBlob newBlob);
+public:
+	int id;
+	int lastDetectedTime; // the time when it was last detected
+	int iniDetectedTime; // the time when it was first detected
+	int dis; //used to sort on distance and to find the closest blob to merge with
+
+	ofxStoredBlobVO(ofxCvBlob newBlob);
 };
 
 #endif
