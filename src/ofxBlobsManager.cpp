@@ -249,18 +249,12 @@ void ofxBlobsManager::debugDraw(int baseX, int baseY, int inputWidth, int inputH
 		int x = baseX+blob->centroid.x*scaleX;
 		int y = baseY+blob->centroid.y*scaleY;
 		
-		ofNoFill();
-		ofSetColor(0, 50, 150,255);
-		ofCircle(x, y, 10);
-		
 		ofFill();
-		ofSetColor(255, 255, 255,125);
+		ofSetHexColor(0x00ffff);
 		ofCircle(x, y, 10);
 
-		ofSetColor(0, 0, 50,255);
-		
-		if(blob->id >= 10)
-			x -= 4;
+		ofSetHexColor(0x000000);
+		if(blob->id >= 10) x -= 4;
 		ofDrawBitmapString(ofToString(blob->id),x-4,y+5);
 	}
 	
