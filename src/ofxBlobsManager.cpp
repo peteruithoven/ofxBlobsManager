@@ -48,11 +48,15 @@ void ofxBlobsManager::update(vector<ofxCvBlob> newBlobs)
 			// update stored blob
 			ofxStoredBlobVO* closestBlob = closeBlobs.at(0);
 			//cout << "      found matching stored blob: " << closestBlob->id << endl;
+			
+			int prevX = closestBlob->centroid.x;
+			int prevY = closestBlob->centroid.y;
+			
 			closestBlob->update(newBlob);
 			if(normalizePercentage < 1)
 			{
-				closestBlob->centroid.x = closestBlob->centroid.x*(1-normalizePercentage) + newBlob.centroid.x*normalizePercentage;
-				closestBlob->centroid.y = closestBlob->centroid.y*(1-normalizePercentage) + newBlob.centroid.y*normalizePercentage;
+				closestBlob->centroid.x = prevX*(1-normalizePercentage) + newBlob.centroid.x*normalizePercentage;
+				closestBlob->centroid.y = prevY*(1-normalizePercentage) + newBlob.centroid.y*normalizePercentage;
 			}
 			closestBlob->lastDetectedTime = currentTime;
 		}
