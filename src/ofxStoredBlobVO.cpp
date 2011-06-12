@@ -7,22 +7,16 @@
 #import "ofxStoredBlobVO.h"
 
 
-ofxStoredBlobVO::ofxStoredBlobVO(ofxCvBlob newBlob)
+ofxStoredBlobVO::ofxStoredBlobVO(ofxCvBlob& newBlob)
 {
 	// a quick "shallow" copy 
-	area = newBlob.area;
-	length = newBlob.length;
-	boundingRect = newBlob.boundingRect;
-	centroid = newBlob.centroid;
-	hole = newBlob.hole;
-	pts = newBlob.pts;
-	nPts = newBlob.nPts;
+	update(newBlob);
 	
 	id = -1;
 	lastDetectedTime = 0;
 }
 
-void ofxStoredBlobVO::update(ofxCvBlob newBlob)
+void ofxStoredBlobVO::update(ofxCvBlob& newBlob)
 {
 	// a quick "shallow" update 
 	area = newBlob.area;

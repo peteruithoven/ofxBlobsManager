@@ -42,21 +42,26 @@ public:
 	int maxNumBlobs;
 	
 	// the final resulting blobs
-	vector<ofxStoredBlobVO*> blobs;
+	vector<ofxStoredBlobVO> blobs;
 
 	// possible new blobs 
-	vector<ofxStoredBlobVO*> candidateBlobs;
+	vector<ofxStoredBlobVO> candidateBlobs;
+	
+	
+	// also debug draw the candidate blobs
+	bool debugDrawCandidates;
 	
 	ofxBlobsManager();
-	void update(vector<ofxCvBlob> newCVBlobs);
+	void update(vector<ofxCvBlob>& newCVBlobs);
 	void debugDraw(int baseX, int baseY, int inputWidth, int inputHeight, int displayWidth, int displayHeight);
 	bool hasBlob(int blobID);
-	void removeBlob(ofxStoredBlobVO * targetBlob, vector<ofxStoredBlobVO*> * blobs, bool deleteBlob);
+	void removeBlob(ofxStoredBlobVO& targetBlob, vector<ofxStoredBlobVO>& blobs);
 	
 private:
 	int sequentialID;
+	int sequentialCandidateID;
 	
-	vector<ofxStoredBlobVO*> findCloseBlobs(ofxCvBlob * newBlob,vector<ofxStoredBlobVO*> * blobs);
+	vector<ofxStoredBlobVO*> findCloseBlobs(ofxCvBlob& newBlob,vector<ofxStoredBlobVO>& blobs);
 };
 
 #endif

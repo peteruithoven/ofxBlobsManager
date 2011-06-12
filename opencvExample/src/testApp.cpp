@@ -17,12 +17,13 @@ void testApp::setup(){
 	grayDiff.allocate(320,240);
 
 	bLearnBakground = true;
-	threshold = 80;
+	threshold = 55;
 	
 	blobsManager.normalizePercentage = 0.7;
 	blobsManager.giveLowestPossibleIDs = true;
 	blobsManager.maxUndetectedTime = 500;
-	blobsManager.minDetectedTime = 500;
+	blobsManager.minDetectedTime = 2000;
+	blobsManager.debugDrawCandidates = true;
 	ofSetFrameRate(30);
 }
 
@@ -96,6 +97,26 @@ void testApp::draw(){
 	// debug draw the filtered blobs
 	blobsManager.debugDraw(20, 20, 320, 240, 320, 240);
 	blobsManager.debugDraw(360, 540, 320, 240, 320, 240);
+	
+	for(int i=0;i<blobsManager.blobs.size();i++)
+	{
+		ofxCvBlob blob = blobsManager.blobs.at(i);
+		ofNoFill();
+		ofSetColor(255,0,0);
+		ofCircle(20+blob.centroid.x,20+blob.centroid.y,40);
+	}
+	
+	ofEnableAlphaBlending();
+	
+	for(int i=0;i<blobsManager.candidateBlobs.size();i++)
+	{
+		ofxCvBlob candidateBlob = blobsManager.candidateBlobs.at(i);
+		ofNoFill();
+		ofSetColor(255,0,0,50);
+		ofCircle(20+candidateBlob.centroid.x,20+candidateBlob.centroid.y,40);
+	}
+	
+	ofDisableAlphaBlending();
 	
 	// finally, a report:
 
