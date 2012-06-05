@@ -4,8 +4,7 @@
  *  Created by Peter Uithoven on 5/6/11.
  */
 
-#import "ofxBlobsManager.h"
-
+#include "ofxBlobsManager.h"
 
 ofxBlobsManager::ofxBlobsManager()
 {
