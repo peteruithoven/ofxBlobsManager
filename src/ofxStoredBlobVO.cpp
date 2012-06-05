@@ -4,7 +4,7 @@
  *  Created by Peter Uithoven on 5/6/11.
  */
 
-#import "ofxStoredBlobVO.h"
+#include "ofxStoredBlobVO.h"
 
 
 ofxStoredBlobVO::ofxStoredBlobVO(ofxCvBlob& newBlob)
