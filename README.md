@@ -1,5 +1,8 @@
 BlobsManager
-==================
+============
+
+*Looking for new maintainer*
+
 A manager for openCV blobs. 
 Functionalities: 
 - By storing blobs and comparing them with new blobs it can track moving blobs.
